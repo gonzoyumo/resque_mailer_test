@@ -1,0 +1,36 @@
+== Testing workflow
+
+1. git clone git://github.com/gonzoyumo/resque_mailer_test.git
+2. cd resque_mailer_test
+3. open console and type : Notifier.deliver_password_reset_instructions
+
+Looking in the resque-web, no more job processed.
+
+Note that it works well when using manual enqueue : Resque.enqueue(Notifier, :deliver_password_reset_instructions) Job is queued in the :mailer queue and successfully processed.
+
+the resque_mailer method_missing seems not to be processed. The action_mailer method_missing take predecence over it and the mail is delivered immediatly.
+
+
+Some more tests give me this clue :
+
+
+calling a fake deliver_* method, it's catched by action_mailer :
+ 
+Notifier.deliver_x
+NoMethodError: undefined method `x' for #<Notifier:0x1030f3f58>
+from /opt/local/lib/ruby/gems/1.8/gems/actionmailer-2.3.5/lib/action_mailer/base.rb:459:in `__send__'
+from /opt/local/lib/ruby/gems/1.8/gems/actionmailer-2.3.5/lib/action_mailer/base.rb:459:in `create!'
+from /opt/local/lib/ruby/gems/1.8/gems/actionmailer-2.3.5/lib/action_mailer/base.rb:452:in `initialize'
+from /opt/local/lib/ruby/gems/1.8/gems/actionmailer-2.3.5/lib/action_mailer/base.rb:395:in `new'
+from /opt/local/lib/ruby/gems/1.8/gems/actionmailer-2.3.5/lib/action_mailer/base.rb:395:in `method_missing'
+ 
+ 
+calling a dummy method, it's catched by resque_mailer :
+ 
+Notifier.not_a_deliver_method
+NoMethodError: undefined method `not_a_deliver_method' for Notifier:Class
+from /opt/local/lib/ruby/gems/1.8/gems/resque_mailer-0.2.1/lib/resque_mailer.rb:19:in `method_missing'
+from /opt/local/lib/ruby/gems/1.8/gems/actionmailer-2.3.5/lib/action_mailer/base.rb:400:in `method_missing'
+
+
+
