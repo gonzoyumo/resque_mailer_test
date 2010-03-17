@@ -4,7 +4,7 @@
 2. cd resque_mailer_test
 3. open console and type : Notifier.deliver_password_reset_instructions
 
-Looking in the resque-web, no more job processed.
+Looking in the resque-web, no more job processed, but development.log show me the mail just created (an I receive it if mail config is correct)
 
 Note that it works well when using manual enqueue : Resque.enqueue(Notifier, :deliver_password_reset_instructions) Job is queued in the :mailer queue and successfully processed.
 
